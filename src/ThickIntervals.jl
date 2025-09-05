@@ -9,11 +9,11 @@ import IntervalArithmetic: NumTypes, Interval,
 
 export interval
 
-struct ThickInterval{T <: NumTypes}
+struct ThickInterval{T<:NumTypes}
     lo :: Interval{T}
     hi :: Interval{T}
     
-    function ThickInterval(lo, hi)
+    function ThickInterval(lo::Interval{T}, hi::Interval{T}) where {T<:Real}
         if !issubset_interval(interval(sup(lo), inf(hi)), interval(inf(lo), sup(hi)))
             throw(ArgumentError("Invalid interval bounds"))
         end
@@ -23,11 +23,11 @@ end
 
 export ThickInterval
 
-function t2interval(lo::Interval{T}, hi::Interval{T}) where {T <: Real}
+function t2interval(lo::Interval{T}, hi::Interval{T}) where {T<:Real}
     ThickInterval(lo, hi)
 end
 
-function t2interval(outer_lo::T, inner_lo::T, inner_hi::T, outer_hi::T) where {T <: Real}
+function t2interval(outer_lo::T, inner_lo::T, inner_hi::T, outer_hi::T) where {T<:Real}
     return t2interval(interval(outer_lo, inner_lo), interval(inner_hi, outer_hi))
 end
 
@@ -39,16 +39,16 @@ inner(x::ThickInterval) = interval(sup(inf(x)), inf(sup(x)))
 export t2interval, inf, sup, outer, inner
 
 function Base.:+(a::ThickInterval, b::ThickInterval)
-    return ti(inf(a) + inf(b), sup(a) + sup(b))
+    return t2interval(inf(a) + inf(b), sup(a) + sup(b))
 end
 
 function Base.:-(a::ThickInterval, b::ThickInterval)
-    return ti(inf(a) - sup(b), sup(a) - inf(b))
+    return t2interval(inf(a) - sup(b), sup(a) - inf(b))
 end
 
 function Base.:*(a::ThickInterval, b::ThickInterval)
     Φ = [inf(a) * inf(b), inf(a) * sup(b), sup(a) * inf(b), sup(a) * sup(b)]
-    return ti(min(Φ), max(Φ))
+    return t2interval(minimum(Φ), maximum(Φ))
 end
 
 function Base.:/(a::ThickInterval, b::ThickInterval)
@@ -56,7 +56,7 @@ function Base.:/(a::ThickInterval, b::ThickInterval)
         throw(DivideError("Division by interval containing zero"))
     end
     
-    inv_b = ti(1/sup(b), 1/inf(b))
+    inv_b = t2interval(1/sup(b), 1/inf(b))
     
     return a * inv_b
 end
