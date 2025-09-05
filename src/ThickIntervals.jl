@@ -52,7 +52,7 @@ function Base.:*(a::ThickInterval, b::ThickInterval)
 end
 
 function Base.:/(a::ThickInterval, b::ThickInterval)
-	if 0 ∈ b
+	if 0 ∈ outer(b)
 		throw(DivideError("Division by interval containing zero"))
 	end
 
