@@ -22,16 +22,16 @@ using Pkg; Pkg.add(["IntervalArithmetic", "ThickIntervals"])
 using ThickIntervals
 ```
 
-Considering an interval $[a] = [1.5, 3.5]$ with an uncertainty of $\pm 0.5$ in both the lower and upper bound, we can construct a thick interval $`\llbracket a \rrbracket = \llbracket [1,2], [3,4] \rrbracket`$.
+Considering an interval $[a] = [1.5, 3.5]$ with an uncertainty of $\pm 0.5$ in both the lower and upper bound, we can construct a thick interval $`⟦a⟧ = ⟦[1,2], [3,4]⟧`$.
 
 ```julia
 a = thickinterval(1, 2, 3, 4);
 ```
 
-Given a second thick interval $`\llbracket b \rrbracket = \llbracket [2.25,2.75], [3.33,3.67] \rrbracket`$, we can construct it from two intervals as well.
+Given a second thick interval $`⟦b⟧ = ⟦[2.25,2.75], [3.5,4.5]⟧`$, we can construct it from two intervals as well.
 
 ```julia
-b = thickinterval(interval(2.25,2.75), interval(3.5,4.5));
+b = thickinterval(interval(2.25, 2.75), interval(3.5, 4.5));
 ```
 
 Currently, the basic arithmetic operations $`\{+,-,\cdot,/\}`$ are supported by this package, e.g.:
