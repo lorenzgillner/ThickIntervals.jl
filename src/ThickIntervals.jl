@@ -1,16 +1,13 @@
-# __precompile__(true)
-
 module ThickIntervals
 
 import IntervalArithmetic: NumTypes, Interval,
     bareinterval, interval, inf, sup, diam,
-    +, -, *, /,
-    issubset_interval
+    min, max, +, -, *, /, strictprecedes,
+    intersect_interval, issubset_interval, hull
 
 export interval
 
 # Construction and basic properties
-
 struct ThickInterval{T<:NumTypes} <: Real
     lo::Interval{T}
     hi::Interval{T}
@@ -27,6 +24,10 @@ function thickinterval(lo::Interval{T}, hi::Interval{T}) where {T<:Real}
     ThickInterval(lo, hi)
 end
 
+function thickinterval(lo::T, hi::T) where {T<:Real}
+    return thickinterval(interval(lo), interval(hi))
+end
+
 function thickinterval(outer_lo::T, inner_lo::T, inner_hi::T, outer_hi::T) where {T<:Real}
     return thickinterval(interval(outer_lo, inner_lo), interval(inner_hi, outer_hi))
 end
@@ -37,15 +38,24 @@ end
 
 inf(x::ThickInterval) = x.lo
 sup(x::ThickInterval) = x.hi
+subset(x::ThickInterval) = intersect_interval(x.lo, x.hi)
+supset(x::ThickInterval) = hull(x.lo, x.hi)
 outer(x::ThickInterval) = interval(inf(inf(x)), sup(sup(x)))
 inner(x::ThickInterval) = interval(sup(inf(x)), inf(sup(x)))
 
-export thickinterval, inf, sup, outer, inner
+export thickinterval, inf, sup, subset, supset, outer, inner
 
 # Set-like operations
+function Base.:>(a::ThickInterval, b::ThickInterval)
+    return b < a
+end
 
 function Base.:>(a::ThickInterval, b::Real)
     return inf(outer(a)) > b
+end
+
+function Base.:<(a::ThickInterval, b::ThickInterval)
+    return strictprecedes(supset(a), supset(b))
 end
 
 function Base.:<(a::ThickInterval, b::Real)
@@ -68,7 +78,6 @@ function contains(a::ThickInterval, x::Real)
 end
 
 # Arithmetic operations
-
 function Base.:+(a::ThickInterval, b::ThickInterval)
     return thickinterval(inf(a) + inf(b), sup(a) + sup(b))
 end
@@ -92,8 +101,15 @@ function Base.:/(a::ThickInterval, b::ThickInterval)
     return a * inv_b
 end
 
-# Utility functions
+function Base.:∩(a::ThickInterval, b::ThickInterval)
+    return thickinterval(max(inf(a), inf(b)), min(sup(a), sup(b)))
+end
 
+function ⊔(a::ThickInterval, b::ThickInterval)
+    return thickinterval(min(inf(a), inf(b)), max(sup(a), sup(b)))
+end
+
+# Utility functions
 function inner_diam(a::ThickInterval)
     return diam(inner(a))
 end
@@ -113,7 +129,6 @@ end
 export inner_diam, outer_diam, thickness, contains
 
 # Promotion rules
-
 Base.promote_rule(::Type{ThickInterval{T}}, ::Type{ThickInterval{S}}) where {T<:NumTypes,S<:NumTypes} =
     ThickInterval{promote_type(T, S)}
 
@@ -124,10 +139,9 @@ Base.promote_rule(::Type{T}, ::Type{ThickInterval{S}}) where {T<:Real,S<:NumType
     ThickInterval{promote_type(T, S)}
 
 # Type conversions
-
 function Base.convert(::Type{ThickInterval{T}}, x::Real) where {T<:NumTypes}
-    x_ = interval(convert(T, x))
-    return thickinterval(x_)
+    _x = interval(convert(T, x))
+    return thickinterval(_x)
 end
 
 function Base.convert(::Type{ThickInterval{T}}, x::ThickInterval) where {T<:NumTypes}

@@ -1,7 +1,7 @@
 name = "ThickIntervals"
 uuid = "540b2d50-f826-4de2-88b6-7b05931975d3"
 authors = ["Lorenz Gillner", "Pascal Müller"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 IntervalArithmetic = "d1acc4aa-44c8-5952-acd4-ba5d80a2a253"
@@ -10,7 +10,7 @@ IntervalArithmetic = "d1acc4aa-44c8-5952-acd4-ba5d80a2a253"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
-IntervalArithmetic = "0.23.0"
+IntervalArithmetic = "1.0.2"
 Test = "1.11.0"
 julia = "1.6"
 
